@@ -24,9 +24,9 @@ async function getYoutubeVideo(id) {
         const res = await fetch(URL);
         const data = await res.json();
 
-        return data;
+        return { data, error: null };
     } catch (error) {
-        return { error };
+        return { data: null, error };
     }
 }
 
@@ -59,17 +59,47 @@ app.post('/', async (req, res) => {
 
     const existingVideo = await Video.findOne({ where: { youtube_video_id: videoID } });
 
-    if (!existingVideo) {
-        console.log("This video does not exist in the database");
+    if (existingVideo) {
+        return res.status(200).json({
+            data: existingVideo,
+        });
     }
 
-    const data = await getYoutubeVideo(videoID);
+    const { data, error } = await getYoutubeVideo(videoID);
+
+    if (error) {
+        return res.status(400).json({
+            error: {
+                msg: "Somethong went wrong",
+                data: error,
+            },
+        });
+    }
+
+    if (data.items.length === 0) {
+        return res.status(400).json({
+            error: {
+                msg: "Video doesn't exist",
+            },
+        });
+    }
+
+    const [videoData] = data.items;
+
+    const videoInstance = await Video.create({
+        youtube_video_id: videoData.id,
+        title: videoData.snippet.title,
+        description: videoData.snippet.description,
+        youtube_channel_id: videoData.snippet.channelId,
+        youtube_channel_title: videoData.snippet.channelTitle,
+        thumbnails: JSON.stringify(videoData.snippet.thumbnails),
+        metadata: JSON.stringify(videoData),
+    });
+
+    await videoInstance.reload();
 
     res.status(201).json({
-        body: req.body,
-        lastElement,
-        videoID,
-        data,
+        data: videoInstance,
     });
 });
 
