@@ -55,6 +55,11 @@ module.exports = function (sequelize, DataTypes) {
         deletedAt: 'deleted_at',
         createdAt: 'created_at',
         updatedAt: 'updated_at',
+        defaultScope: {
+            attributes: {
+                exclude: ['metadata', 'deleted_at'],
+            },
+        },
     });
 
     return Video;
