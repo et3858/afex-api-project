@@ -2,11 +2,13 @@ require('dotenv').config();
 
 const fetch = require('node-fetch');
 const express = require('express');
+const cors = require('cors');
 const app = express();
 const { Video } = require("./models");
 const port = 3000;
 
 
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
