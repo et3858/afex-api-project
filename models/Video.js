@@ -30,6 +30,9 @@ module.exports = function (sequelize, DataTypes) {
         thumbnails: {
             allowNull: false,
             type: DataTypes.TEXT,
+            get(key) {
+                return JSON.parse(this.getDataValue(key));
+            },
         },
         metadata: {
             allowNull: false,
