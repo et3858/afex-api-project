@@ -119,10 +119,12 @@ app.delete('/:id', async (req, res) => {
     const video = await Video.findByPk(req.params.id);
 
     if (!video) {
-        res.status(404).json({ error: { msg: "Video not found" } });
-    } else {
-        res.status(200).json({ data: video });
+        return res.status(404).json({ error: { msg: "Video not found" } });
     }
+
+    await video.destroy();
+
+    res.status(204).json({ msg: "Video removed" });
 });
 
 app.listen(port, () => {
