@@ -127,6 +127,6 @@ app.delete('/:id', async (req, res) => {
     res.status(204).json({ msg: "Video removed" });
 });
 
-app.listen(port, "0.0.0.0", () => {
+app.listen(port, () => {
     console.log(`Example app listening on port ${port}`);
 });
