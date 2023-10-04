@@ -67,6 +67,17 @@ app.post('/', async (req, res) => {
         });
     }
 
+    const deletedVideo = await Video.findOne({ where: { youtube_video_id: videoID }, paranoid: false })
+
+    if (deletedVideo) {
+        await deletedVideo.restore();
+        await deletedVideo.reload();
+
+        return res.status(200).json({
+            data: deletedVideo,
+        });
+    }
+
     const { data, error } = await getYoutubeVideo(videoID);
 
     if (error) {
