@@ -46,7 +46,7 @@ app.post('/', async (req, res) => {
 
     if (!URL_REGEX.test(url)) {
         return res.status(400).json({
-            error: { msg: "Error in the format of your url" }
+            error: { msg: "The url link is incorrect" }
         });
     }
 
@@ -90,9 +90,9 @@ app.post('/', async (req, res) => {
     }
 
     if (data.items.length === 0) {
-        return res.status(400).json({
+        return res.status(404).json({
             error: {
-                msg: "Video doesn't exist",
+                msg: "Video doesn't exist on YouTube",
             },
         });
     }
