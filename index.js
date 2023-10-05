@@ -3,10 +3,14 @@ require('dotenv').config();
 const fetch = require('node-fetch');
 const express = require('express');
 const cors = require('cors');
+const fs = require('fs');
+const https = require('https');
 const app = express();
 
 
-const ssl_cert = "9D5D1519280BDBEB6049D0A45E29D830.txt";
+const key = fs.readFileSync(process.env.SSL_KEY);
+const cert = fs.readFileSync(process.env.SSL_CERT);
+const sslCredentials = { key, cert };
 
 
 
@@ -37,13 +41,6 @@ async function getYoutubeVideo(id) {
         return { data: null, error };
     }
 }
-
-
-
-
-app.get(`/.well-known/pki-validation/${ssl_cert}`, (req, res) => {
-    res.sendFile(`/home/ec2-user/afex-api-project/${ssl_cert}`);
-});
 
 
 app.get('/', async (req, res) => {
@@ -154,3 +151,8 @@ app.delete('/:id', async (req, res) => {
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`);
 });
+
+
+
+const httpServer = https.createServer(sslCredentials, app);
+httpServer.listen(8443);
