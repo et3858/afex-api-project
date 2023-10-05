@@ -4,6 +4,12 @@ const fetch = require('node-fetch');
 const express = require('express');
 const cors = require('cors');
 const app = express();
+
+
+const ssl_cert = "9D5D1519280BDBEB6049D0A45E29D830.txt";
+
+
+
 const { Video } = require("./models");
 const port = 3000;
 
@@ -31,6 +37,13 @@ async function getYoutubeVideo(id) {
         return { data: null, error };
     }
 }
+
+
+
+
+app.get(`/.well-known/pki-validation/${ssl_cert}`, (req, res) => {
+    res.sendFile(`/home/ec2-user/afex-api-project/${ssl_cert}`);
+});
 
 
 app.get('/', async (req, res) => {
