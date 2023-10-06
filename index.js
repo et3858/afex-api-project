@@ -6,15 +6,10 @@ const cors = require('cors');
 const fs = require('fs');
 const https = require('https');
 const app = express();
-
-
-const key = fs.readFileSync(process.env.SSL_KEY);
-const cert = fs.readFileSync(process.env.SSL_CERT);
-const sslCredentials = { key, cert };
-
-
-
 const { Video } = require("./models");
+
+
+const enablehttps = process.env.HTTPS || "";
 const port = 3000;
 
 
@@ -154,5 +149,12 @@ app.listen(port, () => {
 
 
 
-const httpServer = https.createServer(sslCredentials, app);
-httpServer.listen(8443);
+
+if (/^true$/.test(enablehttps)) {
+    const key = fs.readFileSync(process.env.SSL_KEY);
+    const cert = fs.readFileSync(process.env.SSL_CERT);
+    const sslCredentials = { key, cert };
+
+    const httpServer = https.createServer(sslCredentials, app);
+    httpServer.listen(8443);
+}
