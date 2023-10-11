@@ -1,4 +1,50 @@
-/* jshint indent: 2 */
+/**
+ * @param {string} rawDuration [Pattern: P(xD)?(T(xH)?(xM)?(xS)?)? Example: PT1H23M45S -> 1:23:45]
+ */
+function decodeDuration(rawDuration) {
+    const sanitizedDuration = rawDuration.replace(/(P|T)/g, "");
+
+    const dict = {
+        'D': '00',
+        'H': '00',
+        'M': '00',
+        'S': '00',
+    };
+
+    completeDict(sanitizedDuration, dict);
+
+    let duration = Object.values(dict).join(":").replace(/^(0(0?:)*)*/g, "");
+
+    // Concatenate with zeroes if the duration of a video is less than one minute
+    if (duration.length === 1) {
+        duration = "0:0" + duration;
+    } else if (duration.length === 2) {
+        duration = "0:" + duration;
+    }
+
+    return duration;
+}
+
+
+function completeDict(sanitizedDuration, dict) {
+    let timeFraction = '';
+
+    for (const iterator of sanitizedDuration) {
+        if (/\d/.test(iterator)) {
+            timeFraction += iterator;
+            continue;
+        }
+
+        if (timeFraction.length === 1) {
+            timeFraction = "0" + timeFraction;
+        }
+
+        dict[iterator.toUpperCase()] = timeFraction;
+        timeFraction = '';
+    }
+}
+
+
 module.exports = function (sequelize, DataTypes) {
     const Video = sequelize.define('Video', {
         id: {
@@ -68,6 +114,11 @@ module.exports = function (sequelize, DataTypes) {
                 exclude: ['metadata', 'deleted_at'],
             },
         },
+    });
+
+    Video.beforeCreate(video => {
+        const { duration = "" } = video;
+        video.duration = decodeDuration(duration);
     });
 
     return Video;

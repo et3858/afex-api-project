@@ -25,7 +25,7 @@ app.use(express.urlencoded({ extended: false }));
  */
 async function getYoutubeVideo(id) {
     const API_KEY = process.env.YOUTUBE_API_KEY || "YOUR_API_KEY";
-    const URL = `https://www.googleapis.com/youtube/v3/videos?id=${id}&key=${API_KEY}&part=snippet`;
+    const URL = `https://www.googleapis.com/youtube/v3/videos?id=${id}&key=${API_KEY}&part=snippet,contentDetails`;
 
     try {
         const res = await fetch(URL);
@@ -108,6 +108,7 @@ app.post('/', async (req, res) => {
         youtube_video_id: videoData.id,
         title: videoData.snippet.title,
         description: videoData.snippet.description,
+        duration: videoData.contentDetails.duration,
         youtube_channel_id: videoData.snippet.channelId,
         youtube_channel_title: videoData.snippet.channelTitle,
         thumbnails: JSON.stringify(videoData.snippet.thumbnails),
