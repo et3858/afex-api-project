@@ -65,22 +65,18 @@ app.post('/', async (req, res) => {
         });
     }
 
-    const existingVideo = await Video.findOne({ where: { youtube_video_id: videoID } });
+    // Find an existing video even it's soft-deleted so that it can be restored
+    const existingVideo = await Video.findOne({
+        where: { youtube_video_id: videoID },
+        paranoid: false,
+    });
 
     if (existingVideo) {
+        await existingVideo.restore();
+        await existingVideo.reload();
+
         return res.status(200).json({
             data: existingVideo,
-        });
-    }
-
-    const deletedVideo = await Video.findOne({ where: { youtube_video_id: videoID }, paranoid: false })
-
-    if (deletedVideo) {
-        await deletedVideo.restore();
-        await deletedVideo.reload();
-
-        return res.status(200).json({
-            data: deletedVideo,
         });
     }
 
