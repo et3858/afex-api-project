@@ -47,16 +47,17 @@ app.get('/', async (req, res) => {
 
 app.post('/', async (req, res) => {
     const { url = "" } = req.body;
-    const URL_REGEX = /^((http(s)?):\/\/)?((www\.)?youtube.com|youtu.be|y2u.be)(\/[-a-z\d%_.~+]*)*(\?[;&a-z\d%_.~+=-]*)?(\#[-a-z\d_]*)?$/i;
+    const sanitizedUrl = url.replace(/^(http(s)?:\/\/)?(www\.)?/g, "");
+    const URL_REGEX = /^(youtube.com|youtu.be|y2u.be)(\/[-a-z\d%_.~+]*)*(\?[;&a-z\d%_.~+=-]*)?(\#[-a-z\d_]*)?$/i;
 
-    if (!URL_REGEX.test(url)) {
+    if (!URL_REGEX.test(sanitizedUrl)) {
         return res.status(400).json({
             error: { msg: "The url link is incorrect" }
         });
     }
 
-    const lastElement = url.split("/").slice(-1).join();
-    const videoID = lastElement.split("=").slice(-1).join();
+    const urlObj = new URL("https://" + sanitizedUrl);
+    const videoID = urlObj.pathname === "/watch" ? urlObj.searchParams.get("v") : urlObj.pathname.split("/").slice(-1);
 
     if (!videoID) {
         return res.status(400).json({
