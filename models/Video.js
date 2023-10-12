@@ -127,5 +127,10 @@ module.exports = function (sequelize, DataTypes) {
         video.duration = decodeDuration(duration);
     });
 
+    Video.beforeUpdate(video => {
+        const { duration = "" } = video;
+        video.duration = decodeDuration(duration);
+    });
+
     return Video;
 };
