@@ -106,6 +106,7 @@ app.post('/', async (req, res) => {
         title: videoData.snippet.title,
         description: videoData.snippet.description,
         duration: videoData.contentDetails.duration,
+        live_status: videoData.snippet.liveBroadcastContent,
         youtube_channel_id: videoData.snippet.channelId,
         youtube_channel_title: videoData.snippet.channelTitle,
         thumbnails: JSON.stringify(videoData.snippet.thumbnails),

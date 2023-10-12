@@ -70,6 +70,12 @@ module.exports = function (sequelize, DataTypes) {
             defaultValue: "",
             type: DataTypes.STRING(20),
         },
+        live_status: {
+            allowNull: false,
+            defaultValue: "none",
+            type: DataTypes.ENUM,
+            values: ['none', 'live', 'upcoming'],
+        },
         youtube_channel_id: {
             allowNull: false,
             type: DataTypes.STRING(100),
