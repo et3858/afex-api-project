@@ -148,6 +148,56 @@ app.listen(port, () => {
 
 
 
+app.post('/:id/sync', async (req, res) => {
+    const video = await Video.findByPk(req.params.id);
+
+    if (!video) {
+        return res.status(404).json({ error: { msg: "Video not found" } });
+    }
+
+    const { data, error } = await getYoutubeVideo(video.youtube_video_id);
+
+    if (error) {
+        return res.status(400).json({
+            error: {
+                msg: "Somethong went wrong",
+                data: error,
+            },
+        });
+    }
+
+    if (data.items.length === 0) {
+        return res.status(404).json({
+            error: {
+                msg: "Video doesn't exist on YouTube",
+            },
+        });
+    }
+
+    const [videoData] = data.items;
+
+    video.set({
+        youtube_video_id: videoData.id,
+        title: videoData.snippet.title,
+        description: videoData.snippet.description,
+        duration: videoData.contentDetails.duration,
+        live_status: videoData.snippet.liveBroadcastContent,
+        youtube_channel_id: videoData.snippet.channelId,
+        youtube_channel_title: videoData.snippet.channelTitle,
+        thumbnails: JSON.stringify(videoData.snippet.thumbnails),
+        metadata: JSON.stringify(videoData),
+    });
+
+    await video.save();
+    await video.reload();
+
+    res.status(200).json({
+        data: video,
+    });
+});
+
+
+
 
 if (/^true$/.test(enablehttps)) {
     const key = fs.readFileSync(process.env.SSL_KEY);
