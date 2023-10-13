@@ -85,7 +85,7 @@ app.post('/', async (req, res) => {
     if (error) {
         return res.status(400).json({
             error: {
-                msg: "Somethong went wrong",
+                msg: "Something went wrong",
                 data: error,
             },
         });
@@ -100,20 +100,29 @@ app.post('/', async (req, res) => {
     }
 
     const [videoData] = data.items;
+    let videoInstance;
 
-    const videoInstance = await Video.create({
-        youtube_video_id: videoData.id,
-        title: videoData.snippet.title,
-        description: videoData.snippet.description,
-        duration: videoData.contentDetails.duration,
-        live_status: videoData.snippet.liveBroadcastContent,
-        youtube_channel_id: videoData.snippet.channelId,
-        youtube_channel_title: videoData.snippet.channelTitle,
-        thumbnails: JSON.stringify(videoData.snippet.thumbnails),
-        metadata: JSON.stringify(videoData),
-    });
+    try {
+        videoInstance = await Video.create({
+            youtube_video_id: videoData.id,
+            title: videoData.snippet.title,
+            description: videoData.snippet.description,
+            duration: videoData.contentDetails.duration,
+            live_status: videoData.snippet.liveBroadcastContent,
+            youtube_channel_id: videoData.snippet.channelId,
+            youtube_channel_title: videoData.snippet.channelTitle,
+            thumbnails: JSON.stringify(videoData.snippet.thumbnails),
+            metadata: JSON.stringify(videoData),
+        });
 
-    await videoInstance.reload();
+        await videoInstance.reload();
+    } catch (error) {
+        return res.status(500).json({
+            error: {
+                msg: error.message,
+            },
+        });
+    }
 
     res.status(201).json({
         data: videoInstance,
@@ -160,7 +169,7 @@ app.post('/:id/sync', async (req, res) => {
     if (error) {
         return res.status(400).json({
             error: {
-                msg: "Somethong went wrong",
+                msg: "Something went wrong",
                 data: error,
             },
         });
@@ -176,20 +185,28 @@ app.post('/:id/sync', async (req, res) => {
 
     const [videoData] = data.items;
 
-    video.set({
-        youtube_video_id: videoData.id,
-        title: videoData.snippet.title,
-        description: videoData.snippet.description,
-        duration: videoData.contentDetails.duration,
-        live_status: videoData.snippet.liveBroadcastContent,
-        youtube_channel_id: videoData.snippet.channelId,
-        youtube_channel_title: videoData.snippet.channelTitle,
-        thumbnails: JSON.stringify(videoData.snippet.thumbnails),
-        metadata: JSON.stringify(videoData),
-    });
+    try {
+        video.set({
+            youtube_video_id: videoData.id,
+            title: videoData.snippet.title,
+            description: videoData.snippet.description,
+            duration: videoData.contentDetails.duration,
+            live_status: videoData.snippet.liveBroadcastContent,
+            youtube_channel_id: videoData.snippet.channelId,
+            youtube_channel_title: videoData.snippet.channelTitle,
+            thumbnails: JSON.stringify(videoData.snippet.thumbnails),
+            metadata: JSON.stringify(videoData),
+        });
 
-    await video.save();
-    await video.reload();
+        await video.save();
+        await video.reload();
+    } catch (error) {
+        return res.status(500).json({
+            error: {
+                msg: error.message,
+            },
+        });
+    }
 
     res.status(200).json({
         data: video,

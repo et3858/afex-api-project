@@ -41,6 +41,11 @@ function completeDict(sanitizedDuration, dict) {
 }
 
 
+function validateDurationCode(rawDuration = "") {
+    return /^P(\d*D)?(T((\d{1,2}H)?(\d{1,2}M)?(\d{1,2}S)?){1})?$/g.test(rawDuration);
+}
+
+
 module.exports = function (sequelize, DataTypes) {
     const Video = sequelize.define('Video', {
         id: {
@@ -120,11 +125,21 @@ module.exports = function (sequelize, DataTypes) {
 
     Video.beforeCreate(video => {
         const { duration = "" } = video;
+
+        if (!validateDurationCode(duration)) {
+            throw new Error("The duration of the video is incorrect");
+        }
+
         video.duration = decodeDuration(duration);
     });
 
     Video.beforeUpdate(video => {
         const { duration = "" } = video;
+
+        if (!validateDurationCode(duration)) {
+            throw new Error("The duration of the video is incorrect");
+        }
+
         video.duration = decodeDuration(duration);
     });
 
