@@ -151,12 +151,6 @@ app.delete('/:id', async (req, res) => {
     res.status(204).json({ msg: "Video removed" });
 });
 
-app.listen(port, () => {
-    console.log(`Example app listening on port ${port}`);
-});
-
-
-
 app.post('/:id/sync', async (req, res) => {
     const video = await Video.findByPk(req.params.id);
 
@@ -213,6 +207,11 @@ app.post('/:id/sync', async (req, res) => {
     });
 });
 
+
+
+app.listen(port, () => {
+    console.log(`Example app listening on port ${port}`);
+});
 
 
 
