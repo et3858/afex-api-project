@@ -27,7 +27,7 @@ function decodeDuration(rawDuration) {
 
 
 function completeDict(sanitizedDuration, dict) {
-    let timeFraction = '';
+    let timeFraction = '0';
 
     for (const iterator of sanitizedDuration) {
         if (/\d/.test(iterator)) {
@@ -35,12 +35,8 @@ function completeDict(sanitizedDuration, dict) {
             continue;
         }
 
-        if (timeFraction.length === 1) {
-            timeFraction = "0" + timeFraction;
-        }
-
-        dict[iterator.toUpperCase()] = timeFraction;
-        timeFraction = '';
+        dict[iterator.toUpperCase()] = timeFraction.slice(-2);
+        timeFraction = '0';
     }
 }
 
