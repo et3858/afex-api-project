@@ -13,7 +13,8 @@ const { Video } = require("./../models");
  */
 async function getYoutubeVideo(id) {
     const API_KEY = process.env.YOUTUBE_API_KEY || "YOUR_API_KEY";
-    const URL = `https://www.googleapis.com/youtube/v3/videos?id=${id}&key=${API_KEY}&part=snippet,contentDetails`;
+    const PARTS = ["snippet", "contentDetails", "localizations"];
+    const URL = `https://www.googleapis.com/youtube/v3/videos?id=${id}&key=${API_KEY}&part=${PARTS.join(",")}`;
 
     try {
         const res = await fetch(URL);
