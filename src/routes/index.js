@@ -35,7 +35,7 @@ router.get('/', async (req, res) => {
 
 router.post('/', async (req, res) => {
     const { url = "" } = req.body;
-    const sanitizedUrl = url.replace(/^(http(s)?:\/\/)?(www\.)?/g, "");
+    const sanitizedUrl = url.replace(/^(http(s)?:\/\/)?([\w-]+\.)*(?=\w+\.\w{2,3})/g, "");
     const URL_REGEX = /^(youtube.com|youtu.be|y2u.be)(\/[-a-z\d%_.~+]*)*(\?[;&a-z\d%_.~+=-]*)?(\#[-a-z\d_]*)?$/i;
 
     if (!URL_REGEX.test(sanitizedUrl)) {
