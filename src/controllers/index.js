@@ -1,28 +1,5 @@
-require('dotenv').config();
-
-const fetch = require('node-fetch');
 const { Video } = require("./../models");
-
-
-/**
- * Query for the youtube video by id
- * @param {string} id
- * @returns
- */
-async function getYoutubeVideo(id) {
-    const API_KEY = process.env.YOUTUBE_API_KEY || "YOUR_API_KEY";
-    const PARTS = ["snippet", "contentDetails", "localizations"];
-    const URL = `https://www.googleapis.com/youtube/v3/videos?id=${id}&key=${API_KEY}&part=${PARTS.join(",")}`;
-
-    try {
-        const res = await fetch(URL);
-        const data = await res.json();
-
-        return { data, error: null };
-    } catch (error) {
-        return { data: null, error };
-    }
-}
+const youtubeAPI = require("./../utils/youtubeAPI");
 
 
 async function getVideos(req, res) {
@@ -67,7 +44,7 @@ async function addVideoByUrl(req, res) {
         });
     }
 
-    const { data, error } = await getYoutubeVideo(videoID);
+    const { data, error } = await youtubeAPI.getYoutubeVideo(videoID);
 
     if (error) {
         return res.status(400).json({
@@ -146,7 +123,7 @@ async function syncVideo(req, res) {
         return res.status(404).json({ error: { msg: "Video not found" } });
     }
 
-    const { data, error } = await getYoutubeVideo(video.youtube_video_id);
+    const { data, error } = await youtubeAPI.getYoutubeVideo(video.youtube_video_id);
 
     if (error) {
         return res.status(400).json({
