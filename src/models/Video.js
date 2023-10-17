@@ -123,6 +123,13 @@ module.exports = function (sequelize, DataTypes) {
         },
     });
 
+    Video.associate = (models) => {
+        Video.hasMany(models.VideoTranslation, {
+            as: 'video_translations',
+            foreignKey: 'video_id',
+        });
+    };
+
     Video.beforeCreate(video => {
         const { duration = "" } = video;
 
