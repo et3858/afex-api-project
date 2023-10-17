@@ -1,5 +1,6 @@
-const { Video } = require("./../models");
+const { Video, VideoTranslation } = require("./../models");
 const youtubeAPI = require("./../utils/youtubeAPI");
+const translation = require("./../utils/translation");
 
 
 async function getVideos(req, res) {
@@ -80,6 +81,14 @@ async function addVideoByUrl(req, res) {
         });
 
         await videoInstance.reload();
+
+        if (!!videoData?.localizations) {
+            const translations = translation.createTranslationList(videoData.localizations, {
+                video_id: videoInstance.id,
+            }).sort((a, b) => a.language.localeCompare(b.language))
+
+            await VideoTranslation.bulkCreate(translations, { validate: true });
+        }
     } catch (error) {
         return res.status(500).json({
             error: {
@@ -159,6 +168,16 @@ async function syncVideo(req, res) {
 
         await video.save();
         await video.reload();
+
+        if (!!videoData?.localizations) {
+            await VideoTranslation.destroy({ where: { video_id: video.id } });
+
+            const translations = translation.createTranslationList(videoData.localizations, {
+                video_id: video.id,
+            }).sort((a, b) => a.language.localeCompare(b.language))
+
+            await VideoTranslation.bulkCreate(translations, { validate: true });
+        }
     } catch (error) {
         return res.status(500).json({
             error: {
