@@ -42,7 +42,7 @@ function completeDict(sanitizedDuration, dict) {
 
 
 function validateDurationCode(rawDuration = "") {
-    return /^P(\d*D)?(T((\d{1,2}H)?(\d{1,2}M)?(\d{1,2}S)?){1})?$/g.test(rawDuration);
+    return /^P(\d*D)?(T((([1-9]|1\d|2[0-3])H)?(([1-5]\d|[1-9])M)?(([1-5]\d|[1-9])S)?){1})?$/g.test(rawDuration);
 }
 
 
