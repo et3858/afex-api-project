@@ -141,11 +141,11 @@ module.exports = function (sequelize, DataTypes) {
     });
 
     Video.beforeUpdate(video => {
-        if (video.hasOwnProperty("duration")) {
+        if (!(/^\d{1,2}(:\d{1,2})+$/g.test(video.duration))) {
             const { duration = "" } = video;
 
             if (!validateDurationCode(duration)) {
-                throw new Error("The duration of the video is incorrect LOL");
+                throw new Error("The duration of the video is incorrect");
             }
 
             video.duration = decodeDuration(duration);
