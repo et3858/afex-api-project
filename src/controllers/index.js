@@ -1,12 +1,53 @@
+const { Op } = require("sequelize");
 const { Video, VideoTranslation } = require("./../models");
 const youtubeAPI = require("./../utils/youtubeAPI");
 const translation = require("./../utils/translation");
 
 
-async function getVideos(req, res) {
-    const videos = await Video.findAll();
+const language = "es-419";
 
-    res.status(200).json({ data: videos });
+
+/**
+ * @param   {object[]} translations
+ * @param   {string} translations.*.language
+ * @param   {string} locale
+ * @returns {object|null}
+ */
+function getVideoLocation(translations = [], locale = "en") {
+    return translations.length === 1 ? translations[0] : translations.find(t => t.language === locale);
+}
+
+
+/**
+ * @param   {/src/models/Video} v
+ * @param   {string} locale
+ * @returns {object}
+ */
+function getPlainVideo(v, locale = "en") {
+    const { video_translations, ...video } = v.get({ plain: true });
+    const localized = getVideoLocation(video_translations, locale);
+
+    return { ...video, localized };
+}
+
+
+async function getVideos(req, res) {
+    const videos = await Video.findAll({
+        include: {
+            association: 'video_translations',
+            attributes: ['language', 'title', 'description'],
+            where: {
+                language: {
+                    [Op.startsWith]: language.slice(0, 2),
+                },
+            },
+            required: false,
+        },
+    });
+
+    const videoList = videos.map(v => getPlainVideo(v, language));
+
+    res.status(200).json({ data: videoList });
 }
 
 
@@ -102,14 +143,25 @@ async function addVideoByUrl(req, res) {
     });
 }
 
-async function getVideo (req, res) {
-    const video = await Video.findByPk(req.params.id);
+async function getVideo(req, res) {
+    const video = await Video.findByPk(req.params.id, {
+        include: {
+            association: 'video_translations',
+            attributes: ['language', 'title', 'description'],
+            where: {
+                language: {
+                    [Op.startsWith]: language.slice(0, 2),
+                },
+            },
+            required: false,
+        },
+    });
 
     if (!video) {
         return res.status(404).json({ error: { msg: "Video not found" } });
     }
 
-    res.status(200).json({ data: video });
+    res.status(200).json({ data: getPlainVideo(video, language) });
 }
 
 async function removeVideo(req, res) {
