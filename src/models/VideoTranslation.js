@@ -42,6 +42,15 @@ module.exports = function (sequelize, DataTypes) {
         deletedAt: 'deleted_at',
         createdAt: 'created_at',
         updatedAt: 'updated_at',
+        defaultScope: {
+            attributes: {
+                exclude: [
+                    'deleted_at',
+                    'created_at',
+                    'updated_at',
+                ],
+            },
+        },
     });
 
     VideoTranslation.associate = (models) => {
